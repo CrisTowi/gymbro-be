@@ -1,4 +1,4 @@
-const { v4: uuidv4 } = require('uuid');
+const crypto = require('crypto');
 const Session = require('../models/Session');
 
 // GET /api/sessions
@@ -66,7 +66,7 @@ exports.create = async (req, res, next) => {
     await Session.deleteMany({ isActive: true });
 
     const sessionData = {
-      sessionId: req.body.sessionId || uuidv4(),
+      sessionId: req.body.sessionId || crypto.randomUUID(),
       date: req.body.date || new Date().toISOString(),
       routineId: req.body.routineId,
       startTime: req.body.startTime || new Date().toISOString(),

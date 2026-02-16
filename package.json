@@ -8,7 +8,12 @@
     "dev": "nodemon src/index.js",
     "seed": "node src/seed/index.js"
   },
-  "keywords": ["gym", "workout", "tracker", "api"],
+  "keywords": [
+    "gym",
+    "workout",
+    "tracker",
+    "api"
+  ],
   "author": "",
   "license": "ISC",
   "dependencies": {
@@ -17,8 +22,7 @@
     "express": "^5.2.1",
     "helmet": "^8.1.0",
     "mongoose": "^8.23.0",
-    "morgan": "^1.10.1",
-    "uuid": "^13.0.0"
+    "morgan": "^1.10.1"
   },
   "devDependencies": {
     "nodemon": "^3.1.11"
