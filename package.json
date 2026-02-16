@@ -1,0 +1,26 @@
+{
+  "name": "gymtrack-be",
+  "version": "1.0.0",
+  "description": "GymTrack REST API - Express + MongoDB backend for the GymTrack workout tracker",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "nodemon src/index.js",
+    "seed": "node src/seed/index.js"
+  },
+  "keywords": ["gym", "workout", "tracker", "api"],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "cors": "^2.8.6",
+    "dotenv": "^17.3.1",
+    "express": "^5.2.1",
+    "helmet": "^8.1.0",
+    "mongoose": "^8.23.0",
+    "morgan": "^1.10.1",
+    "uuid": "^13.0.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.11"
+  }
+}
