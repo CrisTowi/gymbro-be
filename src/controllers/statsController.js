@@ -3,7 +3,11 @@ const Session = require('../models/Session');
 // GET /api/stats/overview
 exports.getOverview = async (req, res, next) => {
   try {
-    const sessions = await Session.find({ completed: true, isActive: false });
+    const sessions = await Session.find({
+      userId: req.user.userId,
+      completed: true,
+      isActive: false,
+    });
 
     const totalSessions = sessions.length;
     const totalWeight = sessions.reduce((sum, s) => sum + s.totalWeightLbs, 0);
@@ -32,7 +36,11 @@ exports.getOverview = async (req, res, next) => {
 // GET /api/stats/personal-records
 exports.getPersonalRecords = async (req, res, next) => {
   try {
-    const sessions = await Session.find({ completed: true, isActive: false });
+    const sessions = await Session.find({
+      userId: req.user.userId,
+      completed: true,
+      isActive: false,
+    });
     const records = buildPersonalRecords(sessions);
     res.json(records);
   } catch (err) {
@@ -44,7 +52,11 @@ exports.getPersonalRecords = async (req, res, next) => {
 exports.getExerciseHistory = async (req, res, next) => {
   try {
     const { exerciseId } = req.params;
-    const sessions = await Session.find({ completed: true, isActive: false });
+    const sessions = await Session.find({
+      userId: req.user.userId,
+      completed: true,
+      isActive: false,
+    });
 
     const history = [];
     for (const session of sessions) {
@@ -71,7 +83,11 @@ exports.getExerciseHistory = async (req, res, next) => {
 exports.getLastExercisePerformance = async (req, res, next) => {
   try {
     const { exerciseId } = req.params;
-    const sessions = await Session.find({ completed: true, isActive: false }).sort({ date: -1 });
+    const sessions = await Session.find({
+      userId: req.user.userId,
+      completed: true,
+      isActive: false,
+    }).sort({ date: -1 });
 
     for (const session of sessions) {
       const exerciseLog = session.exercises.find((e) => e.exerciseId === exerciseId);
@@ -103,7 +119,11 @@ exports.getRecommendedSets = async (req, res, next) => {
     const { exerciseId } = req.params;
     const targetSetCount = parseInt(req.query.sets, 10) || 4;
 
-    const sessions = await Session.find({ completed: true, isActive: false }).sort({ date: -1 });
+    const sessions = await Session.find({
+      userId: req.user.userId,
+      completed: true,
+      isActive: false,
+    }).sort({ date: -1 });
 
     for (const session of sessions) {
       const exerciseLog = session.exercises.find((e) => e.exerciseId === exerciseId);
@@ -140,7 +160,11 @@ exports.getRecommendedSets = async (req, res, next) => {
 // GET /api/stats/last-session
 exports.getLastSession = async (req, res, next) => {
   try {
-    const session = await Session.findOne({ completed: true, isActive: false }).sort({ date: -1 });
+    const session = await Session.findOne({
+      userId: req.user.userId,
+      completed: true,
+      isActive: false,
+    }).sort({ date: -1 });
     res.json(session);
   } catch (err) {
     next(err);

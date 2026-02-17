@@ -5,7 +5,7 @@ const Session = require('../models/Session');
 // Supports ?completed=true|false and ?routineId=
 exports.getAll = async (req, res, next) => {
   try {
-    const filter = { isActive: false };
+    const filter = { userId: req.user.userId, isActive: false };
 
     if (req.query.completed !== undefined) {
       filter.completed = req.query.completed === 'true';
@@ -25,7 +25,10 @@ exports.getAll = async (req, res, next) => {
 // GET /api/sessions/active
 exports.getActive = async (req, res, next) => {
   try {
-    const session = await Session.findOne({ isActive: true });
+    const session = await Session.findOne({
+      userId: req.user.userId,
+      isActive: true,
+    });
     res.json(session);
   } catch (err) {
     next(err);
@@ -35,7 +38,10 @@ exports.getActive = async (req, res, next) => {
 // DELETE /api/sessions/active
 exports.clearActive = async (req, res, next) => {
   try {
-    const session = await Session.findOne({ isActive: true });
+    const session = await Session.findOne({
+      userId: req.user.userId,
+      isActive: true,
+    });
     if (!session) {
       return res.status(404).json({ error: 'No active session found' });
     }
@@ -49,7 +55,10 @@ exports.clearActive = async (req, res, next) => {
 // GET /api/sessions/:id
 exports.getById = async (req, res, next) => {
   try {
-    const session = await Session.findOne({ sessionId: req.params.id });
+    const session = await Session.findOne({
+      sessionId: req.params.id,
+      userId: req.user.userId,
+    });
     if (!session) {
       return res.status(404).json({ error: 'Session not found' });
     }
@@ -62,10 +71,13 @@ exports.getById = async (req, res, next) => {
 // POST /api/sessions
 exports.create = async (req, res, next) => {
   try {
-    // Clear any existing active session
-    await Session.deleteMany({ isActive: true });
+    await Session.deleteMany({
+      userId: req.user.userId,
+      isActive: true,
+    });
 
     const sessionData = {
+      userId: req.user.userId,
       sessionId: req.body.sessionId || crypto.randomUUID(),
       date: req.body.date || new Date().toISOString(),
       routineId: req.body.routineId,
@@ -86,7 +98,10 @@ exports.create = async (req, res, next) => {
 // PUT /api/sessions/:id
 exports.update = async (req, res, next) => {
   try {
-    const session = await Session.findOne({ sessionId: req.params.id });
+    const session = await Session.findOne({
+      sessionId: req.params.id,
+      userId: req.user.userId,
+    });
     if (!session) {
       return res.status(404).json({ error: 'Session not found' });
     }
@@ -102,7 +117,6 @@ exports.update = async (req, res, next) => {
       }
     }
 
-    // When marking as completed, deactivate the session
     if (req.body.completed === true) {
       session.isActive = false;
     }

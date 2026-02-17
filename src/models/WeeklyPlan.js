@@ -10,6 +10,12 @@ const dayField = {
 
 const weeklyPlanSchema = new mongoose.Schema(
   {
+    userId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+      default: null,
+      index: true,
+    },
     monday: dayField,
     tuesday: dayField,
     wednesday: dayField,

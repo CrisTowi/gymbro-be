@@ -6,6 +6,7 @@ const morgan = require('morgan');
 const connectDB = require('./config/db');
 const errorHandler = require('./middleware/errorHandler');
 
+const authRoutes = require('./routes/auth');
 const exerciseRoutes = require('./routes/exercises');
 const routineRoutes = require('./routes/routines');
 const sessionRoutes = require('./routes/sessions');
@@ -26,6 +27,7 @@ app.use(morgan('dev'));
 app.use(express.json());
 
 // Routes
+app.use('/api/auth', authRoutes);
 app.use('/api/exercises', exerciseRoutes);
 app.use('/api/routines', routineRoutes);
 app.use('/api/sessions', sessionRoutes);

@@ -1,5 +1,8 @@
 const router = require('express').Router();
 const ctrl = require('../controllers/sessionController');
+const requireAuth = require('../middleware/requireAuth');
+
+router.use(requireAuth);
 
 // Active session routes must be defined before :id to avoid conflicts
 router.get('/active', ctrl.getActive);

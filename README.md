@@ -18,7 +18,7 @@ Copy the example env file and fill in your MongoDB Atlas URI:
 cp .env.example .env
 ```
 
-Edit `.env` and set your `MONGODB_URI` value.
+Edit `.env` and set your `MONGODB_URI` value. For auth, set a secure `JWT_SECRET` (see `.env.example`).
 
 ### 3. Seed the database
 
@@ -38,11 +38,42 @@ npm run dev
 npm start
 ```
 
-The API will be available at `http://localhost:5000`.
+The API will be available at `http://localhost:5001` (or the port in `.env`).
+
+### 5. Create an invitation (one-time)
+
+To register, you need a valid invitation link. From the project root:
+
+```bash
+npm run create-invitation
+```
+
+This prints a registration URL. Open it in the browser to create your account. The invitation expires after use and after the configured `INVITATION_EXPIRY_DAYS` (default 7).
+
+### 6. Backfill existing data to your user (one-time migration)
+
+If you had sessions or a weekly plan in the database before enabling auth, run the backfill script **after** registering:
+
+```bash
+npm run backfill-user-data -- your@email.com
+```
+
+Replace `your@email.com` with the email you used to register. This assigns all unclaimed sessions and the unclaimed weekly plan to your account. Run it only once.
 
 ## API Endpoints
 
-### Exercises (Reference Data)
+### Auth (no token required for login/register)
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/auth/invitation/:token` | Validate invitation for registration |
+| POST | `/api/auth/register` | Register with invitation (body: invitationToken, name, email, password, height?, weight?, goal?) |
+| POST | `/api/auth/login` | Login (body: email, password) |
+| GET | `/api/auth/me` | Current user (requires Bearer token) |
+
+Protected routes below require `Authorization: Bearer <token>`.
+
+### Exercises (Reference Data, no auth)
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
@@ -58,25 +89,25 @@ The API will be available at `http://localhost:5000`.
 | GET | `/api/routines` | Get all routines |
 | GET | `/api/routines/:id` | Get routine by ID |
 
-### Weekly Plan
+### Weekly Plan (auth required)
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| GET | `/api/weekly-plan` | Get the weekly plan |
+| GET | `/api/weekly-plan` | Get the current user's weekly plan |
 | PUT | `/api/weekly-plan` | Update the weekly plan |
 
-### Workout Sessions
+### Workout Sessions (auth required)
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| GET | `/api/sessions` | Get all sessions (`?completed=`, `?routineId=`) |
+| GET | `/api/sessions` | Get current user's sessions (`?completed=`, `?routineId=`) |
 | GET | `/api/sessions/active` | Get the active (in-progress) session |
 | DELETE | `/api/sessions/active` | Clear the active session |
 | GET | `/api/sessions/:id` | Get session by ID |
 | POST | `/api/sessions` | Create a new session (starts a workout) |
 | PUT | `/api/sessions/:id` | Update a session (log sets, finish workout) |
 
-### Stats & Dashboard
+### Stats & Dashboard (auth required)
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
@@ -99,9 +130,12 @@ The API will be available at `http://localhost:5000`.
 src/
   config/db.js            - MongoDB connection
   controllers/            - Route handlers
-  middleware/              - Error handling
-  models/                 - Mongoose schemas
+  middleware/             - requireAuth, error handling
+  models/                 - Mongoose schemas (User, Invitation, Session, etc.)
   routes/                 - Express route definitions
   seed/                   - Database seed data and script
   index.js                - App entry point
+scripts/
+  create-invitation.js    - Create a one-time registration invitation
+  backfill-user-data.js  - Assign unclaimed sessions/weekly plan to a user (migration)
 ```

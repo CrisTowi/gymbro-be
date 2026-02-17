@@ -13,9 +13,10 @@ const DEFAULT_PLAN = {
 // GET /api/weekly-plan
 exports.get = async (req, res, next) => {
   try {
-    let plan = await WeeklyPlan.findOne();
+    const userId = req.user.userId;
+    let plan = await WeeklyPlan.findOne({ userId });
     if (!plan) {
-      plan = await WeeklyPlan.create(DEFAULT_PLAN);
+      plan = await WeeklyPlan.create({ userId, ...DEFAULT_PLAN });
     }
     res.json(plan);
   } catch (err) {
@@ -26,6 +27,7 @@ exports.get = async (req, res, next) => {
 // PUT /api/weekly-plan
 exports.update = async (req, res, next) => {
   try {
+    const userId = req.user.userId;
     const days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
     const update = {};
 
@@ -35,9 +37,9 @@ exports.update = async (req, res, next) => {
       }
     }
 
-    let plan = await WeeklyPlan.findOne();
+    let plan = await WeeklyPlan.findOne({ userId });
     if (!plan) {
-      plan = await WeeklyPlan.create({ ...DEFAULT_PLAN, ...update });
+      plan = await WeeklyPlan.create({ userId, ...DEFAULT_PLAN, ...update });
     } else {
       Object.assign(plan, update);
       await plan.save();

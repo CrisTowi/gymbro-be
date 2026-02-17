@@ -1,6 +1,8 @@
 const router = require('express').Router();
 const ctrl = require('../controllers/statsController');
+const requireAuth = require('../middleware/requireAuth');
 
+router.use(requireAuth);
 router.get('/overview', ctrl.getOverview);
 router.get('/personal-records', ctrl.getPersonalRecords);
 router.get('/last-session', ctrl.getLastSession);
