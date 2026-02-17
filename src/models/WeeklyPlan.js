@@ -1,10 +1,7 @@
 const mongoose = require('mongoose');
 
-const ROUTINE_TYPES_OR_NULL = ['push', 'pull', 'legs', 'full-body', null];
-
 const dayField = {
   type: String,
-  enum: ROUTINE_TYPES_OR_NULL,
   default: null,
 };
 

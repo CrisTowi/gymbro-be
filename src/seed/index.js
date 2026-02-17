@@ -1,10 +1,8 @@
 require('dotenv').config();
 const mongoose = require('mongoose');
 const Exercise = require('../models/Exercise');
-const Routine = require('../models/Routine');
 const WeeklyPlan = require('../models/WeeklyPlan');
 const exerciseSeedData = require('./exercises');
-const routineSeedData = require('./routines');
 
 const DEFAULT_PLAN = {
   monday: 'push',
@@ -21,17 +19,14 @@ async function seed() {
     await mongoose.connect(process.env.MONGODB_URI);
     console.log('Connected to MongoDB');
 
-    // Seed exercises
+    // Seed exercises (global catalog)
     await Exercise.deleteMany({});
     const exercises = await Exercise.insertMany(exerciseSeedData);
     console.log(`Seeded ${exercises.length} exercises`);
 
-    // Seed routines
-    await Routine.deleteMany({});
-    const routines = await Routine.insertMany(routineSeedData);
-    console.log(`Seeded ${routines.length} routines`);
+    // Routines are now per-user; users get defaults via POST /api/routines/seed-defaults
 
-    // Seed default weekly plan (only if none exists)
+    // Seed default weekly plan only for legacy/unclaimed (no userId)
     const existingPlan = await WeeklyPlan.findOne();
     if (!existingPlan) {
       await WeeklyPlan.create(DEFAULT_PLAN);

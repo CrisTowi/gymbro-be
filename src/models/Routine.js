@@ -1,7 +1,5 @@
 const mongoose = require('mongoose');
 
-const ROUTINE_TYPES = ['push', 'pull', 'legs', 'full-body'];
-
 const routineExerciseSchema = new mongoose.Schema(
   {
     exerciseId: {
@@ -32,11 +30,15 @@ const routineExerciseSchema = new mongoose.Schema(
 
 const routineSchema = new mongoose.Schema(
   {
+    userId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+      required: true,
+      index: true,
+    },
     routineId: {
       type: String,
       required: true,
-      unique: true,
-      enum: ROUTINE_TYPES,
       index: true,
     },
     name: {
@@ -45,7 +47,7 @@ const routineSchema = new mongoose.Schema(
     },
     description: {
       type: String,
-      required: true,
+      default: '',
     },
     color: {
       type: String,
@@ -62,5 +64,7 @@ const routineSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
+
+routineSchema.index({ userId: 1, routineId: 1 }, { unique: true });
 
 module.exports = mongoose.model('Routine', routineSchema);
