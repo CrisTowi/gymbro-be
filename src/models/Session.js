@@ -35,8 +35,9 @@ const setLogSchema = new mongoose.Schema(
 
 const exerciseLogSchema = new mongoose.Schema(
   {
-    exerciseId: {
-      type: String,
+    exercise: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Exercise',
       required: true,
     },
     sets: {
@@ -52,8 +53,9 @@ const exerciseLogSchema = new mongoose.Schema(
 
 const personalRecordSchema = new mongoose.Schema(
   {
-    exerciseId: {
-      type: String,
+    exercise: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Exercise',
       required: true,
     },
     type: {
