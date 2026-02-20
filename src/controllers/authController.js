@@ -17,6 +17,7 @@ function userToJSON(user) {
     height: user.height,
     weight: user.weight,
     goal: user.goal,
+    language: user.language ?? 'en',
   };
 }
 
@@ -120,6 +121,38 @@ exports.login = async (req, res, next) => {
 exports.me = async (req, res, next) => {
   try {
     const user = await User.findById(req.user.userId);
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+    res.json(userToJSON(user));
+  } catch (err) {
+    next(err);
+  }
+};
+
+// PATCH /api/auth/me — update current user profile (e.g. language)
+exports.updateMe = async (req, res, next) => {
+  try {
+    const allowed = ['name', 'height', 'weight', 'goal', 'language'];
+    const updates = {};
+    for (const key of allowed) {
+      if (req.body[key] !== undefined) {
+        if (key === 'language') {
+          const lang = req.body[key];
+          if (lang !== 'en' && lang !== 'es') {
+            return res.status(400).json({ error: 'language must be "en" or "es"' });
+          }
+          updates[key] = lang;
+        } else {
+          updates[key] = req.body[key];
+        }
+      }
+    }
+    const user = await User.findByIdAndUpdate(
+      req.user.userId,
+      { $set: updates },
+      { new: true, runValidators: true }
+    );
     if (!user) {
       return res.status(404).json({ error: 'User not found' });
     }

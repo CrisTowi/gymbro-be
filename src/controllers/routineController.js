@@ -1,5 +1,22 @@
+const mongoose = require('mongoose');
 const Routine = require('../models/Routine');
 const defaultRoutines = require('../seed/routines');
+
+function isObjectIdString(value) {
+  if (value == null || typeof value !== 'string') return false;
+  return value.length === 24 && /^[a-f0-9]{24}$/i.test(value);
+}
+
+/** Find one routine by user and id (_id or routineId). */
+function findRoutineByUserAndId(userId, id) {
+  const query = { userId };
+  if (isObjectIdString(id)) {
+    query._id = new mongoose.Types.ObjectId(id);
+  } else {
+    query.routineId = id;
+  }
+  return Routine.findOne(query);
+}
 
 // GET /api/routines — current user's routines
 exports.getAll = async (req, res, next) => {
@@ -12,14 +29,11 @@ exports.getAll = async (req, res, next) => {
   }
 };
 
-// GET /api/routines/:id — one routine by id (must belong to user)
+// GET /api/routines/:id — one routine by id (must belong to user); id can be _id or routineId
 exports.getById = async (req, res, next) => {
   try {
     const userId = req.user.userId;
-    const routine = await Routine.findOne({
-      userId,
-      routineId: req.params.id,
-    });
+    const routine = await findRoutineByUserAndId(userId, req.params.id);
     if (!routine) {
       return res.status(404).json({ error: 'Routine not found' });
     }
@@ -93,10 +107,7 @@ exports.create = async (req, res, next) => {
 exports.update = async (req, res, next) => {
   try {
     const userId = req.user.userId;
-    const routine = await Routine.findOne({
-      userId,
-      routineId: req.params.id,
-    });
+    const routine = await findRoutineByUserAndId(userId, req.params.id);
     if (!routine) {
       return res.status(404).json({ error: 'Routine not found' });
     }
@@ -120,13 +131,11 @@ exports.update = async (req, res, next) => {
 exports.remove = async (req, res, next) => {
   try {
     const userId = req.user.userId;
-    const routine = await Routine.findOneAndDelete({
-      userId,
-      routineId: req.params.id,
-    });
+    const routine = await findRoutineByUserAndId(userId, req.params.id);
     if (!routine) {
       return res.status(404).json({ error: 'Routine not found' });
     }
+    await Routine.findByIdAndDelete(routine._id);
     res.status(204).send();
   } catch (err) {
     next(err);

@@ -4,13 +4,14 @@ const Exercise = require('../models/Exercise');
 const WeeklyPlan = require('../models/WeeklyPlan');
 const exerciseSeedData = require('./exercises');
 
+// Day slots are now Routine ObjectIds; unclaimed plan has no user so use nulls
 const DEFAULT_PLAN = {
-  monday: 'push',
-  tuesday: 'pull',
+  monday: null,
+  tuesday: null,
   wednesday: null,
-  thursday: 'legs',
+  thursday: null,
   friday: null,
-  saturday: 'full-body',
+  saturday: null,
   sunday: null,
 };
 

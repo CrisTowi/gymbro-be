@@ -1,7 +1,8 @@
 const mongoose = require('mongoose');
 
 const dayField = {
-  type: String,
+  type: mongoose.Schema.Types.ObjectId,
+  ref: 'Routine',
   default: null,
 };
 
