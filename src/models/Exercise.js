@@ -19,8 +19,9 @@ const exerciseSchema = new mongoose.Schema(
       unique: true,
       index: true,
     },
+    // Supports legacy (String) or i18n ({ en: String, es: String })
     name: {
-      type: String,
+      type: mongoose.Schema.Types.Mixed,
       required: true,
     },
     category: {
@@ -37,12 +38,14 @@ const exerciseSchema = new mongoose.Schema(
       required: true,
       enum: EQUIPMENT,
     },
+    // Supports legacy (String) or i18n ({ en: String, es: String })
     description: {
-      type: String,
+      type: mongoose.Schema.Types.Mixed,
       required: true,
     },
+    // Supports legacy ([String]) or i18n ({ en: [String], es: [String] })
     instructions: {
-      type: [String],
+      type: mongoose.Schema.Types.Mixed,
       default: [],
     },
     tags: {
