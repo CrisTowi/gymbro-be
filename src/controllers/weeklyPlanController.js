@@ -82,14 +82,33 @@ exports.update = async (req, res, next) => {
   }
 };
 
-/** Map routine name (from LLM) to routine _id for the user. Case-insensitive. */
+/** Map routine name (from LLM) to routine _id for the user.
+ *  Falls back through exact → starts-with → contains matching. */
 async function resolveRoutineNameToId(userId, routineName, routines) {
   if (!routineName || String(routineName).toLowerCase() === 'rest') return null;
-  const name = String(routineName).trim();
-  const found = routines.find(
-    (r) => r.name && r.name.trim().toLowerCase() === name.toLowerCase()
-  );
-  return found ? found._id.toString() : null;
+  const name = String(routineName).trim().toLowerCase();
+
+  // 1. Exact match (case-insensitive)
+  const exact = routines.find((r) => r.name && r.name.trim().toLowerCase() === name);
+  if (exact) return exact._id.toString();
+
+  // 2. One name starts with the other ("leg" → "Legs", "Push Workout" → "Push")
+  const partial = routines.find((r) => {
+    if (!r.name) return false;
+    const rn = r.name.trim().toLowerCase();
+    return rn.startsWith(name) || name.startsWith(rn);
+  });
+  if (partial) return partial._id.toString();
+
+  // 3. One name contains the other ("Leg Day" → "Legs", "Push" → "Push Workout")
+  const contains = routines.find((r) => {
+    if (!r.name) return false;
+    const rn = r.name.trim().toLowerCase();
+    return rn.includes(name) || name.includes(rn);
+  });
+  if (contains) return contains._id.toString();
+
+  return null;
 }
 
 // POST /api/weekly-plan/generate
@@ -102,12 +121,11 @@ exports.generate = async (req, res, next) => {
       return res.status(400).json({ error: 'description is required' });
     }
 
-    const routines = await Routine.find({ userId }).select('_id name').lean();
-    const routineNames = routines.map((r) => r.name).filter(Boolean);
+    const routines = await Routine.find({ userId }).select('_id name description').lean();
 
     const planByNames = await generateWeeklyPlanFromDescription({
       description: description.trim(),
-      routineNames,
+      routines: routines.map((r) => ({ name: r.name, description: r.description })),
       provider: process.env.LLM_PROVIDER,
     });
 

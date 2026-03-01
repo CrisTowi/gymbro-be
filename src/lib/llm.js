@@ -19,23 +19,30 @@ function getProvider(name) {
  * Ask the LLM to generate a weekly plan from a natural language description.
  * @param {object} opts
  * @param {string} opts.description - User's text description of their desired weekly routine
- * @param {string[]} opts.routineNames - List of available routine names (user's routines)
+ * @param {{ name: string, description?: string }[]} opts.routines - User's available routines
  * @param {string} [opts.provider] - 'openai' | 'anthropic' | 'google'
  * @returns {Promise<{ [day: string]: string | null }>} - Day -> routine name or "rest"
  */
-async function generateWeeklyPlanFromDescription({ description, routineNames, provider }) {
+async function generateWeeklyPlanFromDescription({ description, routines, provider }) {
   const impl = getProvider(provider);
-  const namesList = routineNames.length
-    ? routineNames.map((n) => `"${n}"`).join(', ')
-    : '("Push", "Pull", "Legs", "Full Body" - use these if no custom names given)';
 
-  const systemPrompt = `You are a fitness coach assistant. Given a list of the user's workout routine names and their short description of how they want their week to look, you must respond with ONLY a valid JSON object (no markdown, no explanation).
+  const routineList = routines && routines.length
+    ? routines
+        .map((r, i) => `${i + 1}. "${r.name}"${r.description ? ` — ${r.description}` : ''}`)
+        .join('\n')
+    : '1. "Push" — Chest, shoulders, and triceps\n2. "Pull" — Back and biceps\n3. "Legs" — Quadriceps, hamstrings, glutes\n4. "Full Body" — All major muscle groups';
 
-Available routine names: ${namesList}
-For rest days use the exact string "rest".
+  const systemPrompt = `You are a fitness coach assistant. Assign one of the user's workout routines to each day of the week based on their description.
 
-Output format (use only these keys): {"monday": "Routine Name or rest", "tuesday": "...", "wednesday": "...", "thursday": "...", "friday": "...", "saturday": "...", "sunday": "..."}
-Match the user's routine names exactly as provided. If the user mentions a day without a workout, use "rest".`;
+Available routines:
+${routineList}
+
+Rules:
+- You MUST use the exact routine name string as shown above (copy it letter-for-letter, including capitalisation).
+- For rest days use exactly: "rest"
+- Respond with ONLY a valid JSON object, no markdown, no explanation.
+
+Output format: {"monday": "Exact Routine Name or rest", "tuesday": "...", "wednesday": "...", "thursday": "...", "friday": "...", "saturday": "...", "sunday": "..."}`;
 
   const userPrompt = `User's description of their desired weekly routine:\n\n${description}\n\nRespond with only the JSON object.`;
 
