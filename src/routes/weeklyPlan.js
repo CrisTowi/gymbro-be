@@ -5,5 +5,6 @@ const requireAuth = require('../middleware/requireAuth');
 router.use(requireAuth);
 router.get('/', ctrl.get);
 router.put('/', ctrl.update);
+router.post('/generate', ctrl.generate);
 
 module.exports = router;

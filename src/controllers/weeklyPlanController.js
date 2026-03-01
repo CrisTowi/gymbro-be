@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const Routine = require('../models/Routine');
 const WeeklyPlan = require('../models/WeeklyPlan');
+const { generateWeeklyPlanFromDescription } = require('../lib/llm');
 
 const DEFAULT_PLAN_ROUTINE_IDS = {
   monday: 'push',
@@ -73,6 +74,47 @@ exports.update = async (req, res, next) => {
     } else {
       Object.assign(plan, update);
       await plan.save();
+    }
+
+    res.json(plan);
+  } catch (err) {
+    next(err);
+  }
+};
+
+/** Map routine name (from LLM) to routine _id for the user. Case-insensitive. */
+async function resolveRoutineNameToId(userId, routineName, routines) {
+  if (!routineName || String(routineName).toLowerCase() === 'rest') return null;
+  const name = String(routineName).trim();
+  const found = routines.find(
+    (r) => r.name && r.name.trim().toLowerCase() === name.toLowerCase()
+  );
+  return found ? found._id.toString() : null;
+}
+
+// POST /api/weekly-plan/generate
+exports.generate = async (req, res, next) => {
+  try {
+    const userId = req.user.userId;
+    const { description } = req.body || {};
+
+    if (!description || typeof description !== 'string' || !description.trim()) {
+      return res.status(400).json({ error: 'description is required' });
+    }
+
+    const routines = await Routine.find({ userId }).select('_id name').lean();
+    const routineNames = routines.map((r) => r.name).filter(Boolean);
+
+    const planByNames = await generateWeeklyPlanFromDescription({
+      description: description.trim(),
+      routineNames,
+      provider: process.env.LLM_PROVIDER,
+    });
+
+    const plan = {};
+    for (const day of DAYS) {
+      const nameOrRest = planByNames[day];
+      plan[day] = await resolveRoutineNameToId(userId, nameOrRest, routines);
     }
 
     res.json(plan);
