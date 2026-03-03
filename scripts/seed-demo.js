@@ -68,22 +68,45 @@ async function seed() {
   const exerciseCount = await Exercise.countDocuments();
   if (exerciseCount === 0) {
     await Exercise.insertMany(exerciseSeedData);
-    console.log(`Seeded ${exerciseSeedData.length} exercises`);
+    console.log(`✓ Seeded ${exerciseSeedData.length} exercises`);
   } else {
-    console.log(`Exercise catalog OK (${exerciseCount} docs)`);
+    console.log(`✓ Exercise catalog OK (${exerciseCount} docs)`);
   }
 
-  // 2. Wipe existing demo user data
+  // 2. Verify all required exercise IDs exist BEFORE touching user data
+  const EXERCISE_IDS = [
+    'bench-press', 'incline-dumbbell-press', 'overhead-press',
+    'lateral-raises', 'tricep-pushdowns',
+    'deadlift', 'pull-ups', 'barbell-rows', 'lat-pulldowns', 'bicep-curls',
+    'squats', 'leg-press', 'romanian-deadlift', 'leg-curls', 'calf-raises',
+    'plank', 'cable-crunches', 'hip-thrusts',
+  ];
+
+  const exerciseDocs = await Exercise.find({ exerciseId: { $in: EXERCISE_IDS } });
+  const exMap = {};
+  for (const ex of exerciseDocs) exMap[ex.exerciseId] = ex._id;
+
+  const missing = EXERCISE_IDS.filter((id) => !exMap[id]);
+  if (missing.length > 0) {
+    console.error('✗ Missing exercises in DB:', missing);
+    console.error('  Run: npm run seed');
+    process.exit(1);
+  }
+  console.log(`✓ All ${EXERCISE_IDS.length} required exercises found`);
+
+  // 3. Wipe existing demo user data
   const existing = await User.findOne({ email: DEMO_EMAIL });
   if (existing) {
-    await Session.deleteMany({ userId: existing._id });
-    await Routine.deleteMany({ userId: existing._id });
-    await WeeklyPlan.deleteMany({ userId: existing._id });
+    const [sessions, routines, plans] = await Promise.all([
+      Session.deleteMany({ userId: existing._id }),
+      Routine.deleteMany({ userId: existing._id }),
+      WeeklyPlan.deleteMany({ userId: existing._id }),
+    ]);
     await User.deleteOne({ _id: existing._id });
-    console.log('Cleared previous demo user data');
+    console.log(`✓ Cleared previous demo data (${sessions.deletedCount} sessions, ${routines.deletedCount} routines, ${plans.deletedCount} plans)`);
   }
 
-  // 3. Create demo user (password auto-hashed by pre-save hook)
+  // 4. Create demo user (password auto-hashed by pre-save hook)
   const user = await User.create({
     email: DEMO_EMAIL,
     password: DEMO_PASSWORD,
@@ -93,40 +116,7 @@ async function seed() {
     goal: 'Build muscle and strength',
     language: 'en',
   });
-  console.log(`Created user: ${user.email}`);
-
-  // 4. Load exercise ObjectIds
-  const EXERCISE_IDS = [
-    'bench-press',
-    'incline-dumbbell-press',
-    'overhead-press',
-    'lateral-raises',
-    'tricep-pushdowns',
-    'deadlift',
-    'pull-ups',
-    'barbell-rows',
-    'lat-pulldowns',
-    'bicep-curls',
-    'squats',
-    'leg-press',
-    'romanian-deadlift',
-    'leg-curls',
-    'calf-raises',
-    'plank',
-    'cable-crunches',
-    'hip-thrusts',
-  ];
-
-  const exerciseDocs = await Exercise.find({ exerciseId: { $in: EXERCISE_IDS } });
-  const exMap = {};
-  for (const ex of exerciseDocs) exMap[ex.exerciseId] = ex._id;
-
-  const missing = EXERCISE_IDS.filter((id) => !exMap[id]);
-  if (missing.length > 0) {
-    console.warn('⚠️  Missing exercises (run npm run seed first):', missing);
-    process.exit(1);
-  }
-  console.log(`Loaded ${exerciseDocs.length} exercise refs`);
+  console.log(`✓ Created user: ${user.email} (id: ${user._id})`);
 
   // 5. Create routines
   const routineDefs = [
@@ -190,12 +180,15 @@ async function seed() {
   for (const def of routineDefs) {
     const r = await Routine.create({ userId: user._id, ...def });
     routineMap[r.routineId] = r;
+    console.log(`  ✓ Routine: "${r.name}" (routineId: ${r.routineId}, _id: ${r._id})`);
   }
-  console.log(`Created ${routineDefs.length} routines`);
+  console.log(`✓ Created ${routineDefs.length} routines`);
 
   // 6. Helper to build one exercise log for a session
   function exLog(exerciseId, weights, reps) {
-    return { exercise: exMap[exerciseId], sets: makeSets(weights, reps) };
+    const exerciseObjectId = exMap[exerciseId];
+    if (!exerciseObjectId) throw new Error(`Exercise not found in exMap: ${exerciseId}`);
+    return { exercise: exerciseObjectId, sets: makeSets(weights, reps) };
   }
 
   // 7. Session data — 12 sessions over ~6 weeks with progressive overload
@@ -204,8 +197,7 @@ async function seed() {
     // ── Week 1 ────────────────────────────────────────────────────────────────
     {
       routineId: 'push-routine-demo',
-      daysAgo: 42,
-      duration: 3600,
+      daysAgo: 42, duration: 3600,
       exercises: [
         exLog('bench-press',           [185, 185, 195, 195], 8),
         exLog('incline-dumbbell-press', [65, 65, 70],        10),
@@ -216,8 +208,7 @@ async function seed() {
     },
     {
       routineId: 'pull-routine-demo',
-      daysAgo: 40,
-      duration: 3300,
+      daysAgo: 40, duration: 3300,
       exercises: [
         exLog('deadlift',     [275, 275, 295, 295], 5),
         exLog('pull-ups',     [0, 0, 0, 0],         8),
@@ -228,8 +219,7 @@ async function seed() {
     },
     {
       routineId: 'legs-routine-demo',
-      daysAgo: 38,
-      duration: 3900,
+      daysAgo: 38, duration: 3900,
       exercises: [
         exLog('squats',            [225, 225, 245, 245], 8),
         exLog('leg-press',         [360, 360, 380, 380], 10),
@@ -238,12 +228,10 @@ async function seed() {
         exLog('calf-raises',       [135, 135, 145, 145], 15),
       ],
     },
-
     // ── Week 2 ────────────────────────────────────────────────────────────────
     {
       routineId: 'push-routine-demo',
-      daysAgo: 35,
-      duration: 3720,
+      daysAgo: 35, duration: 3720,
       exercises: [
         exLog('bench-press',           [195, 195, 205, 205], 8),
         exLog('incline-dumbbell-press', [70, 70, 75],        10),
@@ -254,8 +242,7 @@ async function seed() {
     },
     {
       routineId: 'pull-routine-demo',
-      daysAgo: 33,
-      duration: 3300,
+      daysAgo: 33, duration: 3300,
       exercises: [
         exLog('deadlift',     [295, 295, 315, 315], 5),
         exLog('pull-ups',     [0, 0, 0, 0],         8),
@@ -266,8 +253,7 @@ async function seed() {
     },
     {
       routineId: 'legs-routine-demo',
-      daysAgo: 31,
-      duration: 3900,
+      daysAgo: 31, duration: 3900,
       exercises: [
         exLog('squats',            [235, 235, 255, 255], 8),
         exLog('leg-press',         [380, 380, 400, 400], 10),
@@ -276,12 +262,10 @@ async function seed() {
         exLog('calf-raises',       [145, 145, 155, 155], 15),
       ],
     },
-
     // ── Week 3 ────────────────────────────────────────────────────────────────
     {
       routineId: 'push-routine-demo',
-      daysAgo: 28,
-      duration: 3600,
+      daysAgo: 28, duration: 3600,
       exercises: [
         exLog('bench-press',           [205, 205, 215, 215], 8),
         exLog('incline-dumbbell-press', [75, 75, 80],        10),
@@ -292,8 +276,7 @@ async function seed() {
     },
     {
       routineId: 'pull-routine-demo',
-      daysAgo: 26,
-      duration: 3480,
+      daysAgo: 26, duration: 3480,
       exercises: [
         exLog('deadlift',     [315, 315, 335, 335], 5),
         exLog('pull-ups',     [0, 0, 0, 0],         8),
@@ -304,8 +287,7 @@ async function seed() {
     },
     {
       routineId: 'legs-routine-demo',
-      daysAgo: 24,
-      duration: 4200,
+      daysAgo: 24, duration: 4200,
       exercises: [
         exLog('squats',            [245, 245, 265, 265], 8),
         exLog('leg-press',         [400, 400, 420, 420], 10),
@@ -314,12 +296,10 @@ async function seed() {
         exLog('calf-raises',       [155, 155, 165, 165], 15),
       ],
     },
-
     // ── Week 4 ────────────────────────────────────────────────────────────────
     {
       routineId: 'push-routine-demo',
-      daysAgo: 21,
-      duration: 3600,
+      daysAgo: 21, duration: 3600,
       exercises: [
         exLog('bench-press',           [215, 215, 225, 225], 8),
         exLog('incline-dumbbell-press', [80, 80, 85],        10),
@@ -330,8 +310,7 @@ async function seed() {
     },
     {
       routineId: 'pull-routine-demo',
-      daysAgo: 19,
-      duration: 3300,
+      daysAgo: 19, duration: 3300,
       exercises: [
         exLog('deadlift',     [335, 335, 355, 355], 5),
         exLog('pull-ups',     [0, 0, 0, 0],         8),
@@ -342,8 +321,7 @@ async function seed() {
     },
     {
       routineId: 'legs-routine-demo',
-      daysAgo: 17,
-      duration: 3900,
+      daysAgo: 17, duration: 3900,
       exercises: [
         exLog('squats',            [255, 255, 275, 275], 8),
         exLog('leg-press',         [420, 420, 440, 440], 10),
@@ -359,7 +337,6 @@ async function seed() {
     const endTime = new Date(
       new Date(startTime).getTime() + sd.duration * 1000
     ).toISOString();
-
     await Session.create({
       userId: user._id,
       sessionId: randomId(),
@@ -375,7 +352,7 @@ async function seed() {
       personalRecords: [],
     });
   }
-  console.log(`Created ${sessionsData.length} sessions`);
+  console.log(`✓ Created ${sessionsData.length} sessions`);
 
   // 8. Weekly plan
   await WeeklyPlan.create({
@@ -388,7 +365,24 @@ async function seed() {
     saturday:  routineMap['pull-routine-demo']._id,
     sunday:    null,
   });
-  console.log('Created weekly plan');
+  console.log('✓ Created weekly plan');
+
+  // 9. Verify — query back what was actually saved
+  const [savedRoutines, savedSessions, savedPlan] = await Promise.all([
+    Routine.countDocuments({ userId: user._id }),
+    Session.countDocuments({ userId: user._id, completed: true }),
+    WeeklyPlan.findOne({ userId: user._id }),
+  ]);
+
+  console.log('\n─── Verification ───────────────────────────────────────');
+  console.log(`  Routines in DB for user: ${savedRoutines}`);
+  console.log(`  Completed sessions in DB: ${savedSessions}`);
+  console.log(`  Weekly plan exists: ${savedPlan ? 'yes' : 'NO — something went wrong'}`);
+
+  if (savedRoutines !== routineDefs.length || savedSessions !== sessionsData.length || !savedPlan) {
+    console.error('\n✗ Verification failed — some data was not saved correctly');
+    process.exit(1);
+  }
 
   console.log('\n✅  Demo seed complete!');
   console.log(`    Email:    ${DEMO_EMAIL}`);
@@ -397,6 +391,7 @@ async function seed() {
 }
 
 seed().catch((err) => {
-  console.error('Demo seed failed:', err.message);
+  console.error('\n✗ Demo seed failed:', err.message);
+  console.error(err.stack);
   process.exit(1);
 });
