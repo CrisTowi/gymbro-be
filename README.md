@@ -137,5 +137,14 @@ src/
   index.js                - App entry point
 scripts/
   create-invitation.js    - Create a one-time registration invitation
-  backfill-user-data.js  - Assign unclaimed sessions/weekly plan to a user (migration)
+  backfill-user-data.js   - Assign unclaimed sessions/weekly plan to a user (migration)
+  seed-demo.js            - Populate a demo user with realistic workout history
 ```
+
+## Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md).
+
+## License
+
+MIT — see [LICENSE](LICENSE).
