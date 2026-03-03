@@ -7,16 +7,16 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 This is a monorepo with two separate apps:
 
 ```
-GymTrack/
-├── gymtrack/        # Frontend — Next.js 16 / TypeScript / React 19
-└── gymtrack-be/     # Backend — Node.js / Express 5 / MongoDB
+GymBro/
+├── gymbro/        # Frontend — Next.js 16 / TypeScript / React 19
+└── gymbro-be/     # Backend — Node.js / Express 5 / MongoDB
 ```
 
-All frontend work happens under `gymtrack/`, all backend work under `gymtrack-be/`. There is no shared package between them.
+All frontend work happens under `gymbro/`, all backend work under `gymbro-be/`. There is no shared package between them.
 
 ## Commands
 
-### Frontend (`gymtrack/`)
+### Frontend (`gymbro/`)
 
 ```bash
 npm run dev              # Start dev server on :3000
@@ -29,7 +29,7 @@ npm run test:coverage    # Coverage report
 npm run validate-i18n    # Check for missing/extra i18n keys between en.json and es.json
 ```
 
-### Backend (`gymtrack-be/`)
+### Backend (`gymbro-be/`)
 
 ```bash
 npm run dev              # nodemon dev server on :5001
@@ -65,7 +65,7 @@ Registration is invite-only. `npm run create-invitation` generates a token store
 
 ### LLM / AI Routine Generation
 
-Provider is set via `LLM_PROVIDER=openai|anthropic|google` in `gymtrack-be/.env`. Default is `google`. Model overrides: `OPENAI_MODEL`, `ANTHROPIC_MODEL`, `GOOGLE_MODEL`. The provider is resolved exclusively server-side — the frontend does not send or display a provider choice.
+Provider is set via `LLM_PROVIDER=openai|anthropic|google` in `gymbro-be/.env`. Default is `google`. Model overrides: `OPENAI_MODEL`, `ANTHROPIC_MODEL`, `GOOGLE_MODEL`. The provider is resolved exclusively server-side — the frontend does not send or display a provider choice.
 
 ### Workout Session Lifecycle
 

@@ -1,6 +1,6 @@
-# GymTrack API
+# GymBro API
 
-REST API backend for the GymTrack workout tracker, built with Express and MongoDB.
+REST API backend for the GymBro workout tracker, built with Express and MongoDB.
 
 ## Setup
 

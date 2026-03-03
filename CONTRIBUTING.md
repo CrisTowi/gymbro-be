@@ -1,6 +1,6 @@
-# Contributing to GymTrack API
+# Contributing to GymBro API
 
-Thanks for your interest! This is the Express/MongoDB backend. The frontend lives in [gymtrack](https://github.com/CrisTowi/gymtrack).
+Thanks for your interest! This is the Express/MongoDB backend. The frontend lives in [gymbro](https://github.com/CrisTowi/gymbro).
 
 ## Prerequisites
 
@@ -11,8 +11,8 @@ Thanks for your interest! This is the Express/MongoDB backend. The frontend live
 
 ```bash
 # 1. Clone
-git clone https://github.com/CrisTowi/gymtrack-be.git
-cd gymtrack-be
+git clone https://github.com/CrisTowi/gymbro-be.git
+cd gymbro-be
 
 # 2. Install
 npm install

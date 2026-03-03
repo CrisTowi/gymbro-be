@@ -45,7 +45,7 @@ app.use(errorHandler);
 // Start server
 connectDB().then(() => {
   app.listen(PORT, () => {
-    console.log(`GymTrack API running on port ${PORT}`);
+    console.log(`GymBro API running on port ${PORT}`);
   });
 });
 

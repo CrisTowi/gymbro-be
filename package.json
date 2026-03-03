@@ -1,7 +1,7 @@
 {
-  "name": "gymtrack-be",
+  "name": "gymbro-be",
   "version": "1.0.0",
-  "description": "GymTrack REST API - Express + MongoDB backend for the GymTrack workout tracker",
+  "description": "GymBro REST API - Express + MongoDB backend for the GymBro workout tracker",
   "main": "src/index.js",
   "scripts": {
     "start": "node src/index.js",
