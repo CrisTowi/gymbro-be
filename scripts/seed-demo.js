@@ -17,7 +17,7 @@ const Session = require('../src/models/Session');
 const WeeklyPlan = require('../src/models/WeeklyPlan');
 const exerciseSeedData = require('../src/seed/exercises');
 
-const DEMO_EMAIL = 'christian.consuelo2@gmail.com';
+const DEMO_EMAIL = 'christian.consuelo2+gymtrack@squareup.com';
 const DEMO_PASSWORD = 'password1'; // 8+ chars required by schema
 const DEMO_NAME = 'Christian';
 
