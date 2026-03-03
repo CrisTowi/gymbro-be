@@ -8,7 +8,8 @@
     "dev": "nodemon src/index.js",
     "seed": "node src/seed/index.js",
     "create-invitation": "node scripts/create-invitation.js",
-    "backfill-user-data": "node scripts/backfill-user-data.js"
+    "backfill-user-data": "node scripts/backfill-user-data.js",
+    "seed-demo": "node scripts/seed-demo.js"
   },
   "keywords": [
     "gym",
