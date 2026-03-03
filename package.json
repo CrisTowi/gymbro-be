@@ -9,7 +9,8 @@
     "seed": "node src/seed/index.js",
     "create-invitation": "node scripts/create-invitation.js",
     "backfill-user-data": "node scripts/backfill-user-data.js",
-    "seed-demo": "node scripts/seed-demo.js"
+    "seed-demo": "node scripts/seed-demo.js",
+    "migrate-routine-index": "node scripts/migrate-routine-index.js"
   },
   "keywords": [
     "gym",

@@ -94,7 +94,16 @@ async function seed() {
   }
   console.log(`✓ All ${EXERCISE_IDS.length} required exercises found`);
 
-  // 3. Wipe existing demo user data
+  // 3. Drop stale solo routineId index if it exists (legacy schema had routineId unique globally;
+  //    current schema uses a compound { userId, routineId } index instead)
+  try {
+    await Routine.collection.dropIndex('routineId_1');
+    console.log('✓ Dropped stale routineId_1 index');
+  } catch {
+    // Index doesn't exist — nothing to do
+  }
+
+  // 5. Wipe existing demo user data
   const existing = await User.findOne({ email: DEMO_EMAIL });
   if (existing) {
     const [sessions, routines, plans] = await Promise.all([
@@ -106,7 +115,7 @@ async function seed() {
     console.log(`✓ Cleared previous demo data (${sessions.deletedCount} sessions, ${routines.deletedCount} routines, ${plans.deletedCount} plans)`);
   }
 
-  // 4. Create demo user (password auto-hashed by pre-save hook)
+  // 6. Create demo user (password auto-hashed by pre-save hook)
   const user = await User.create({
     email: DEMO_EMAIL,
     password: DEMO_PASSWORD,
@@ -118,7 +127,7 @@ async function seed() {
   });
   console.log(`✓ Created user: ${user.email} (id: ${user._id})`);
 
-  // 5. Create routines
+  // 7. Create routines
   const routineDefs = [
     {
       routineId: 'push-routine-demo',
@@ -184,14 +193,14 @@ async function seed() {
   }
   console.log(`✓ Created ${routineDefs.length} routines`);
 
-  // 6. Helper to build one exercise log for a session
+  // 8. Helper to build one exercise log for a session
   function exLog(exerciseId, weights, reps) {
     const exerciseObjectId = exMap[exerciseId];
     if (!exerciseObjectId) throw new Error(`Exercise not found in exMap: ${exerciseId}`);
     return { exercise: exerciseObjectId, sets: makeSets(weights, reps) };
   }
 
-  // 7. Session data — 12 sessions over ~6 weeks with progressive overload
+  // 9. Session data — 12 sessions over ~6 weeks with progressive overload
   //    Schedule: Push / Pull / Legs repeating, each ~7 days apart
   const sessionsData = [
     // ── Week 1 ────────────────────────────────────────────────────────────────
@@ -354,7 +363,7 @@ async function seed() {
   }
   console.log(`✓ Created ${sessionsData.length} sessions`);
 
-  // 8. Weekly plan
+  // 10. Weekly plan
   await WeeklyPlan.create({
     userId: user._id,
     monday:    routineMap['push-routine-demo']._id,
@@ -367,7 +376,7 @@ async function seed() {
   });
   console.log('✓ Created weekly plan');
 
-  // 9. Verify — query back what was actually saved
+  // 11. Verify — query back what was actually saved
   const [savedRoutines, savedSessions, savedPlan] = await Promise.all([
     Routine.countDocuments({ userId: user._id }),
     Session.countDocuments({ userId: user._id, completed: true }),
