@@ -40,16 +40,10 @@ async function main() {
   const userId = user._id;
   console.log('Backfilling data for user:', user.email, `(${userId})`);
 
-  const sessionResult = await Session.updateMany(
-    { userId: null },
-    { $set: { userId } }
-  );
+  const sessionResult = await Session.updateMany({ userId: null }, { $set: { userId } });
   console.log('Sessions updated:', sessionResult.modifiedCount, 'of', sessionResult.matchedCount);
 
-  const planResult = await WeeklyPlan.updateMany(
-    { userId: null },
-    { $set: { userId } }
-  );
+  const planResult = await WeeklyPlan.updateMany({ userId: null }, { $set: { userId } });
   console.log('Weekly plans updated:', planResult.modifiedCount, 'of', planResult.matchedCount);
 
   console.log('Backfill completed.');

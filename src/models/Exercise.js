@@ -1,14 +1,30 @@
 const mongoose = require('mongoose');
 
 const MUSCLE_GROUPS = [
-  'chest', 'back', 'shoulders', 'biceps', 'triceps',
-  'quadriceps', 'hamstrings', 'glutes', 'calves', 'core',
-  'forearms', 'traps',
+  'chest',
+  'back',
+  'shoulders',
+  'biceps',
+  'triceps',
+  'quadriceps',
+  'hamstrings',
+  'glutes',
+  'calves',
+  'core',
+  'forearms',
+  'traps',
 ];
 
 const EQUIPMENT = [
-  'barbell', 'dumbbell', 'cable', 'machine', 'bodyweight',
-  'kettlebell', 'ez-bar', 'smith-machine', 'resistance-band',
+  'barbell',
+  'dumbbell',
+  'cable',
+  'machine',
+  'bodyweight',
+  'kettlebell',
+  'ez-bar',
+  'smith-machine',
+  'resistance-band',
 ];
 
 const exerciseSchema = new mongoose.Schema(

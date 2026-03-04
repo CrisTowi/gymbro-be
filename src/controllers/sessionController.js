@@ -7,12 +7,18 @@ exports.sessionToJSON = function sessionToJSON(session) {
   const o = session.toObject ? session.toObject() : session;
   o.exercises = (o.exercises || []).map((e) => ({
     ...e,
-    exerciseId: e.exercise?.exerciseId ?? (e.exercise && typeof e.exercise === 'object' ? e.exercise.exerciseId : null) ?? (e.exercise ? String(e.exercise) : null),
+    exerciseId:
+      e.exercise?.exerciseId ??
+      (e.exercise && typeof e.exercise === 'object' ? e.exercise.exerciseId : null) ??
+      (e.exercise ? String(e.exercise) : null),
     exercise: undefined,
   }));
   o.personalRecords = (o.personalRecords || []).map((pr) => ({
     ...pr,
-    exerciseId: pr.exercise?.exerciseId ?? (pr.exercise && typeof pr.exercise === 'object' ? pr.exercise.exerciseId : null) ?? (pr.exercise ? String(pr.exercise) : null),
+    exerciseId:
+      pr.exercise?.exerciseId ??
+      (pr.exercise && typeof pr.exercise === 'object' ? pr.exercise.exerciseId : null) ??
+      (pr.exercise ? String(pr.exercise) : null),
     exercise: undefined,
   }));
   return o;

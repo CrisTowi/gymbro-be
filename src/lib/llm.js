@@ -26,11 +26,12 @@ function getProvider(name) {
 async function generateWeeklyPlanFromDescription({ description, routines, provider }) {
   const impl = getProvider(provider);
 
-  const routineList = routines && routines.length
-    ? routines
-        .map((r, i) => `${i + 1}. "${r.name}"${r.description ? ` — ${r.description}` : ''}`)
-        .join('\n')
-    : '1. "Push" — Chest, shoulders, and triceps\n2. "Pull" — Back and biceps\n3. "Legs" — Quadriceps, hamstrings, glutes\n4. "Full Body" — All major muscle groups';
+  const routineList =
+    routines && routines.length
+      ? routines
+          .map((r, i) => `${i + 1}. "${r.name}"${r.description ? ` — ${r.description}` : ''}`)
+          .join('\n')
+      : '1. "Push" — Chest, shoulders, and triceps\n2. "Pull" — Back and biceps\n3. "Legs" — Quadriceps, hamstrings, glutes\n4. "Full Body" — All major muscle groups';
 
   const systemPrompt = `You are a fitness coach assistant. Assign one of the user's workout routines to each day of the week based on their description.
 
@@ -59,7 +60,11 @@ Output format: {"monday": "Exact Routine Name or rest", "tuesday": "...", "wedne
   const plan = {};
   for (const day of DAYS) {
     const v = parsed[day];
-    if (v === null || v === undefined || (typeof v === 'string' && v.trim().toLowerCase() === 'rest')) {
+    if (
+      v === null ||
+      v === undefined ||
+      (typeof v === 'string' && v.trim().toLowerCase() === 'rest')
+    ) {
       plan[day] = null;
     } else if (typeof v === 'string') {
       plan[day] = v.trim();

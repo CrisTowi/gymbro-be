@@ -6,6 +6,8 @@
   "scripts": {
     "start": "node src/index.js",
     "dev": "nodemon src/index.js",
+    "lint": "eslint .",
+    "format": "prettier --write .",
     "seed": "node src/seed/index.js",
     "create-invitation": "node scripts/create-invitation.js",
     "backfill-user-data": "node scripts/backfill-user-data.js",
@@ -35,6 +37,10 @@
     "openai": "^4.77.0"
   },
   "devDependencies": {
-    "nodemon": "^3.1.11"
+    "@eslint/js": "^10.0.1",
+    "eslint": "^10.0.2",
+    "globals": "^17.4.0",
+    "nodemon": "^3.1.11",
+    "prettier": "^3.8.1"
   }
 }

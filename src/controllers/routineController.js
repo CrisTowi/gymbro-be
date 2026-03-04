@@ -80,7 +80,10 @@ exports.create = async (req, res, next) => {
         error: 'routineId, name, color, and icon are required',
       });
     }
-    const slug = String(routineId).toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+    const slug = String(routineId)
+      .toLowerCase()
+      .replace(/\s+/g, '-')
+      .replace(/[^a-z0-9-]/g, '');
     if (!slug) {
       return res.status(400).json({ error: 'routineId must be a non-empty slug' });
     }

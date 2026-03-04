@@ -1,7 +1,12 @@
 const Session = require('../models/Session');
 
 function getExerciseIdFromLog(log) {
-  return log.exercise?.exerciseId ?? (log.exercise && typeof log.exercise === 'object' ? log.exercise.exerciseId : null) ?? (log.exercise ? String(log.exercise) : null) ?? log.exerciseId;
+  return (
+    log.exercise?.exerciseId ??
+    (log.exercise && typeof log.exercise === 'object' ? log.exercise.exerciseId : null) ??
+    (log.exercise ? String(log.exercise) : null) ??
+    log.exerciseId
+  );
 }
 
 // GET /api/stats/overview
@@ -201,11 +206,7 @@ function buildPersonalRecords(sessions) {
       const totalVolume = completedSets.reduce((sum, s) => sum + s.weightLbs * s.reps, 0);
 
       const current = records[exerciseId];
-      if (
-        !current ||
-        maxWeight > current.maxWeight ||
-        totalVolume > current.maxVolume
-      ) {
+      if (!current || maxWeight > current.maxWeight || totalVolume > current.maxVolume) {
         records[exerciseId] = {
           maxWeight: current ? Math.max(maxWeight, current.maxWeight) : maxWeight,
           maxVolume: current ? Math.max(totalVolume, current.maxVolume) : totalVolume,

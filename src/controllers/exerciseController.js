@@ -50,9 +50,7 @@ exports.getAlternatives = async (req, res, next) => {
     }
 
     const excludeRaw = req.query.exclude || '';
-    const excludeIds = excludeRaw
-      ? excludeRaw.split(',').concat(req.params.id)
-      : [req.params.id];
+    const excludeIds = excludeRaw ? excludeRaw.split(',').concat(req.params.id) : [req.params.id];
 
     const alternatives = await Exercise.find({
       category: exercise.category,
