@@ -47,6 +47,7 @@ exports.getById = async (req, res, next) => {
 exports.seedDefaults = async (req, res, next) => {
   try {
     const userId = req.user.userId;
+    const lang = req.query.lang === 'es' ? 'es' : 'en';
     const existing = await Routine.find({ userId });
     if (existing.length > 0) {
       return res.status(400).json({
@@ -57,8 +58,8 @@ exports.seedDefaults = async (req, res, next) => {
       defaultRoutines.map((r) => ({
         userId,
         routineId: r.routineId,
-        name: r.name,
-        description: r.description || '',
+        name: typeof r.name === 'object' ? (r.name[lang] ?? r.name.en) : r.name,
+        description: typeof r.description === 'object' ? (r.description[lang] ?? r.description.en) : (r.description || ''),
         color: r.color,
         icon: r.icon,
         exercises: r.exercises || [],

@@ -1,8 +1,11 @@
 const routines = [
   {
     routineId: 'push',
-    name: 'Push',
-    description: 'Chest, shoulders, and triceps focused workout',
+    name: { en: 'Push', es: 'Empuje' },
+    description: {
+      en: 'Chest, shoulders, and triceps focused workout',
+      es: 'Entrenamiento enfocado en pecho, hombros y tríceps',
+    },
     color: '#FF6B6B',
     icon: '💪',
     exercises: [
@@ -47,8 +50,11 @@ const routines = [
   },
   {
     routineId: 'pull',
-    name: 'Pull',
-    description: 'Back and biceps focused workout',
+    name: { en: 'Pull', es: 'Jalón' },
+    description: {
+      en: 'Back and biceps focused workout',
+      es: 'Entrenamiento enfocado en espalda y bíceps',
+    },
     color: '#4ECDC4',
     icon: '🏋️',
     exercises: [
@@ -87,8 +93,11 @@ const routines = [
   },
   {
     routineId: 'legs',
-    name: 'Legs',
-    description: 'Quadriceps, hamstrings, glutes, and calves workout',
+    name: { en: 'Legs', es: 'Piernas' },
+    description: {
+      en: 'Quadriceps, hamstrings, glutes, and calves workout',
+      es: 'Entrenamiento de cuádriceps, isquiotibiales, glúteos y pantorrillas',
+    },
     color: '#FFE66D',
     icon: '🦵',
     exercises: [
@@ -127,8 +136,11 @@ const routines = [
   },
   {
     routineId: 'full-body',
-    name: 'Full Body',
-    description: 'Complete full body workout hitting all major muscle groups',
+    name: { en: 'Full Body', es: 'Cuerpo Completo' },
+    description: {
+      en: 'Complete full body workout hitting all major muscle groups',
+      es: 'Entrenamiento completo que trabaja todos los grupos musculares principales',
+    },
     color: '#A78BFA',
     icon: '⚡',
     exercises: [
