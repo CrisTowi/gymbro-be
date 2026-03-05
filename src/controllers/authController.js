@@ -34,7 +34,12 @@ exports.validateInvitation = async (req, res, next) => {
     if (new Date() > invitation.expiresAt) {
       return res.status(400).json({ error: 'Invitation has expired' });
     }
-    res.json({ valid: true, invitationId: invitation._id.toString() });
+    res.json({
+      valid: true,
+      invitationId: invitation._id.toString(),
+      email: invitation.email ?? null,
+      lang: invitation.lang ?? 'en',
+    });
   } catch (err) {
     next(err);
   }
@@ -43,7 +48,7 @@ exports.validateInvitation = async (req, res, next) => {
 // POST /api/auth/register — register with valid invitation
 exports.register = async (req, res, next) => {
   try {
-    const { invitationToken, name, email, password, height, weight, goal } = req.body;
+    const { invitationToken, name, email, password, height, weight, goal, language } = req.body;
 
     if (!invitationToken || !name || !email || !password) {
       return res.status(400).json({
@@ -74,6 +79,7 @@ exports.register = async (req, res, next) => {
       height: height != null && height !== '' ? Number(height) : null,
       weight: weight != null && weight !== '' ? Number(weight) : null,
       goal: goal != null && goal !== '' ? String(goal).trim() : null,
+      language: language === 'es' ? 'es' : 'en',
     });
 
     invitation.usedAt = new Date();

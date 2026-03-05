@@ -10,6 +10,15 @@ const invitationSchema = new mongoose.Schema(
       index: true,
       default: () => crypto.randomBytes(32).toString('hex'),
     },
+    email: {
+      type: String,
+      default: null,
+    },
+    lang: {
+      type: String,
+      enum: ['en', 'es'],
+      default: 'en',
+    },
     expiresAt: {
       type: Date,
       required: true,

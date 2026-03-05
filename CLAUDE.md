@@ -34,7 +34,7 @@ npm run validate-i18n    # Check for missing/extra i18n keys between en.json and
 ```bash
 npm run dev              # nodemon dev server on :5001
 npm run seed             # Populate exercises, routines, and default weekly plan (first-time setup)
-npm run create-invitation  # Generate a one-time registration link (printed to stdout)
+npm run create-invitation -- --email user@example.com [--lang es]  # Generate a one-time registration link; --email and --lang are optional
 npm run backfill-user-data -- <email>  # One-time: assign pre-auth data to a user
 ```
 
@@ -42,7 +42,7 @@ npm run backfill-user-data -- <email>  # One-time: assign pre-auth data to a use
 
 ### Authentication Flow
 
-Registration is invite-only. `npm run create-invitation` generates a token stored in the `Invitation` collection. The user visits `APP_URL/register?token=<token>` to create an account. After login, a JWT is returned and stored in `localStorage` by `AuthContext`. All protected API calls include `Authorization: Bearer <token>`.
+Registration is invite-only. `npm run create-invitation` generates a token stored in the `Invitation` collection. Optionally pass `--email <address>` to send the invite by email via Gmail SMTP and pre-fill the email field on the registration form, and `--lang es` to set the invitation language (defaults to `en`). The user visits `APP_URL/register?invitation=<token>` to create an account — the form pre-fills their email and switches to the invitation language automatically. The user's profile is created with that language. After login, a JWT is returned and stored in `localStorage` by `AuthContext`. All protected API calls include `Authorization: Bearer <token>`.
 
 `AuthGuard` (wraps the root layout) redirects unauthenticated users to `/login`. Public routes: `/login`, `/register`.
 
@@ -90,6 +90,9 @@ CORS_ORIGIN=http://localhost:3000
 JWT_SECRET=<long-random-string>
 JWT_EXPIRES_IN=7d
 APP_URL=http://localhost:3000
+INVITATION_BASE_URL=https://your-production-domain.com  # optional; overrides APP_URL for invitation links
+GMAIL_USER=your_gmail@gmail.com                         # optional; required to send invitation emails
+GMAIL_APP_PASSWORD=<16-char-app-password>               # optional; Gmail App Password (requires 2FA enabled)
 LLM_PROVIDER=google
 GOOGLE_GENERATIVE_AI_API_KEY=...
 GOOGLE_MODEL=models/gemini-3-flash-preview
