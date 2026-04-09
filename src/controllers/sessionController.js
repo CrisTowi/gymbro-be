@@ -139,10 +139,17 @@ exports.getById = async (req, res, next) => {
 // POST /api/sessions
 exports.create = async (req, res, next) => {
   try {
-    await Session.deleteMany({
-      userId: req.user.userId,
-      isActive: true,
-    });
+    const isSyncingOfflineSession = req.body.completed === true;
+
+    // Only clear the active session when starting a new live workout.
+    // Skip this when syncing a completed offline session so we don't nuke
+    // any session the user might currently have in progress.
+    if (!isSyncingOfflineSession) {
+      await Session.deleteMany({
+        userId: req.user.userId,
+        isActive: true,
+      });
+    }
 
     const rawExercises = req.body.exercises || [];
     const exercises = await resolveExercises(rawExercises);
@@ -154,9 +161,9 @@ exports.create = async (req, res, next) => {
       routineId: req.body.routineId,
       startTime: req.body.startTime || new Date().toISOString(),
       exercises,
-      completed: false,
-      totalWeightLbs: 0,
-      isActive: true,
+      completed: isSyncingOfflineSession,
+      totalWeightLbs: req.body.totalWeightLbs || 0,
+      isActive: !isSyncingOfflineSession,
     };
 
     const session = await Session.create(sessionData);
