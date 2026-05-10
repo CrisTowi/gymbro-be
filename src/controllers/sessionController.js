@@ -1,6 +1,7 @@
 const crypto = require('crypto');
 const Exercise = require('../models/Exercise');
 const Session = require('../models/Session');
+const User = require('../models/User');
 
 /** Serialize session for API: include exerciseId from populated exercise so client keeps same shape. */
 exports.sessionToJSON = function sessionToJSON(session) {
@@ -154,6 +155,14 @@ exports.create = async (req, res, next) => {
     const rawExercises = req.body.exercises || [];
     const exercises = await resolveExercises(rawExercises);
 
+    let isDeload = false;
+    if (isSyncingOfflineSession) {
+      isDeload = req.body.isDeload ?? false;
+    } else {
+      const user = await User.findById(req.user.userId).select('isDeloadWeek');
+      isDeload = user?.isDeloadWeek ?? false;
+    }
+
     const sessionData = {
       userId: req.user.userId,
       sessionId: req.body.sessionId || crypto.randomUUID(),
@@ -164,6 +173,7 @@ exports.create = async (req, res, next) => {
       completed: isSyncingOfflineSession,
       totalWeightLbs: req.body.totalWeightLbs || 0,
       isActive: !isSyncingOfflineSession,
+      isDeload,
     };
 
     const session = await Session.create(sessionData);
@@ -198,6 +208,9 @@ exports.update = async (req, res, next) => {
 
     if (req.body.completed === true) {
       session.isActive = false;
+      if (session.isDeload) {
+        session.personalRecords = [];
+      }
     }
 
     await session.save();

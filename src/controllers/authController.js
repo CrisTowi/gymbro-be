@@ -18,6 +18,7 @@ function userToJSON(user) {
     weight: user.weight,
     goal: user.goal,
     language: user.language ?? 'en',
+    isDeloadWeek: user.isDeloadWeek ?? false,
   };
 }
 
@@ -139,7 +140,7 @@ exports.me = async (req, res, next) => {
 // PATCH /api/auth/me — update current user profile (e.g. language)
 exports.updateMe = async (req, res, next) => {
   try {
-    const allowed = ['name', 'height', 'weight', 'goal', 'language'];
+    const allowed = ['name', 'height', 'weight', 'goal', 'language', 'isDeloadWeek'];
     const updates = {};
     for (const key of allowed) {
       if (req.body[key] !== undefined) {

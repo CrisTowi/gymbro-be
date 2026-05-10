@@ -40,6 +40,10 @@ const userSchema = new mongoose.Schema(
       enum: ['en', 'es'],
       trim: true,
     },
+    isDeloadWeek: {
+      type: Boolean,
+      default: false,
+    },
   },
   { timestamps: true }
 );

@@ -128,6 +128,10 @@ const sessionSchema = new mongoose.Schema(
       default: false,
       index: true,
     },
+    isDeload: {
+      type: Boolean,
+      default: false,
+    },
   },
   { timestamps: true }
 );

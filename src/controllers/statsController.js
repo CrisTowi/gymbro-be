@@ -66,6 +66,7 @@ exports.getExerciseHistory = async (req, res, next) => {
       userId: req.user.userId,
       completed: true,
       isActive: false,
+      isDeload: { $ne: true },
     }).populate('exercises.exercise');
 
     const history = [];
@@ -97,6 +98,7 @@ exports.getLastExercisePerformance = async (req, res, next) => {
       userId: req.user.userId,
       completed: true,
       isActive: false,
+      isDeload: { $ne: true },
     })
       .sort({ date: -1 })
       .populate('exercises.exercise');
@@ -135,6 +137,7 @@ exports.getRecommendedSets = async (req, res, next) => {
       userId: req.user.userId,
       completed: true,
       isActive: false,
+      isDeload: { $ne: true },
     })
       .sort({ date: -1 })
       .populate('exercises.exercise');
@@ -195,6 +198,7 @@ function buildPersonalRecords(sessions) {
   const records = {};
 
   for (const session of sessions) {
+    if (session.isDeload) continue;
     for (const exerciseLog of session.exercises) {
       const completedSets = exerciseLog.sets.filter((s) => s.completed);
       if (completedSets.length === 0) continue;
